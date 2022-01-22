@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.*;
 
 @Data
@@ -17,8 +18,13 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Role> roles = new HashSet<>();
-        roles.add(Role.ROLE_USER);
-        roles.add(Role.ROLE_ADMIN);
+
+        if (user.getRole().equals(Role.ROLE_USER)) {
+            roles.add(Role.ROLE_USER);
+        }
+        if ((user.getRole().equals(Role.ROLE_ADMIN))) {
+            roles.add(Role.ROLE_ADMIN);
+        }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         for (Role role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.name()));

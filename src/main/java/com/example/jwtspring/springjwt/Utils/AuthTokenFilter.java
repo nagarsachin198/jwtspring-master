@@ -3,6 +3,7 @@ package com.example.jwtspring.springjwt.Utils;
 
 
 import com.example.jwtspring.springjwt.Model.UserDetailsImpl;
+import com.example.jwtspring.springjwt.Repo.BlackListRepository;
 import com.example.jwtspring.springjwt.Service.UserDetailsServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,6 +26,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
+    private final BlackListRepository blackListRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -31,6 +34,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String requestTokenHeader = request.getHeader("Authorization");
         String email = null;
         String jwtToken = null;
+
 
         //null and format
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
@@ -45,6 +49,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 logger.error("JWT Token has expired");
             }
         }
+
+//        if (blackListRepository.findByToken(jwtToken)) {
+//            throw new UnavailableException("You are logout...!!!!");
+//        }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 

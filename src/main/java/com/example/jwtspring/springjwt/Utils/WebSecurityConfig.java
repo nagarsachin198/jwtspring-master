@@ -1,6 +1,7 @@
 package com.example.jwtspring.springjwt.Utils;
 
 
+import com.example.jwtspring.springjwt.Repo.BlackListRepository;
 import com.example.jwtspring.springjwt.Service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,17 +22,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-//@Profile(Profiles.NO_AUTH)
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtils jwtUtils;
+    private final BlackListRepository blackListRepository;
+
 
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter(jwtUtils, userDetailsService);
+        return new AuthTokenFilter(jwtUtils, userDetailsService,blackListRepository);
     }
 
     @Override
@@ -55,7 +57,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated();
+                .and()
+                .antMatcher("/api/test/**")
+                .authorizeRequests();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }

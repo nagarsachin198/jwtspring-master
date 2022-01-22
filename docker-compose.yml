@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql:latest
+    networks:
+      - app-net
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@123Dz
+      - MYSQL_DATABASE=jwtDb
+    restart:
+     unless-stopped
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  jwt-docker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/jwtDb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root@123Dz
+    networks:
+      - app-net
+    depends_on:
+      - mysqldb
+    restart: on-failure
+volumes:
+  dbdata:
+networks:
+  app-net:
+    driver: bridge

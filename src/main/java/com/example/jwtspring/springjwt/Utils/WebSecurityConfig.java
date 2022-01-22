@@ -1,6 +1,7 @@
 package com.example.jwtspring.springjwt.Utils;
 
 
+import com.example.jwtspring.springjwt.Repo.BlackListRepository;
 import com.example.jwtspring.springjwt.Service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,12 +22,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-//@Profile(Profiles.NO_AUTH)
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtils jwtUtils;
+
 
 
     @Bean

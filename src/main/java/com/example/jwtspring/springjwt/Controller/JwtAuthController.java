@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 
@@ -53,5 +54,11 @@ public class JwtAuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
         return new ResponseEntity<>(userService.createUser(signUpRequest), HttpStatus.CREATED);
+    }
+
+    @GetMapping("logout")
+    public ResponseEntity<?> logout(HttpServletRequest request){
+        userDetailsService.logout(request);
+        return new ResponseEntity<>("You are logout....!!!!",HttpStatus.OK);
     }
 }

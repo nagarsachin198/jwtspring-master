@@ -19,10 +19,10 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Role> roles = new HashSet<>();
 
-        if (user.getRole().equals(Role.ROLE_USER)) {
+        if (user.getRole() == Role.ROLE_USER) {
             roles.add(Role.ROLE_USER);
         }
-        if ((user.getRole().equals(Role.ROLE_ADMIN))) {
+        if (user.getRole() == Role.ROLE_ADMIN) {
             roles.add(Role.ROLE_ADMIN);
         }
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

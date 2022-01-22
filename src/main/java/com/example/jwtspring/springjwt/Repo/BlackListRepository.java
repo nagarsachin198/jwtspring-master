@@ -4,8 +4,10 @@ import com.example.jwtspring.springjwt.Model.BlackListToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface BlackListRepository extends JpaRepository<BlackListToken, String> {
+import java.util.Optional;
 
-    Boolean findByToken(String token);
+@Repository
+public interface BlackListRepository extends JpaRepository<BlackListToken, Long> {
+
+    Optional<BlackListToken> findByToken(String token);
 }

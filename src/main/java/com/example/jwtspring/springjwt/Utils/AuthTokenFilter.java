@@ -1,17 +1,24 @@
 package com.example.jwtspring.springjwt.Utils;
 
 
-
+import com.example.jwtspring.springjwt.Exception.CustomException;
 import com.example.jwtspring.springjwt.Model.UserDetailsImpl;
 import com.example.jwtspring.springjwt.Repo.BlackListRepository;
 import com.example.jwtspring.springjwt.Service.UserDetailsServiceImpl;
+import io.jsonwebtoken.ClaimJwtException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
@@ -22,11 +29,14 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
-    private final BlackListRepository blackListRepository;
+    @Autowired
+    public BlackListRepository blackListRepository;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -50,22 +60,27 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
         }
 
-//        if (blackListRepository.findByToken(jwtToken)) {
-//            throw new UnavailableException("You are logout...!!!!");
-//        }
+        if (blackListRepository.findByToken(jwtToken).isPresent()) {
+            log.info("You are logout.....!!!!!");
+            throw new CustomException("You are logout.....!!!!!", HttpStatus.UNAUTHORIZED);
+        }
+
+
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(email);
 
+
             if (jwtUtils.validateToken(jwtToken, userDetails)) {
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
 
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            }
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
 
         }
         filterChain.doFilter(request, response);
